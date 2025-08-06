@@ -5,6 +5,7 @@ import ProductDetail from './components/ProductDetail';
 import Cart from './components/Cart';
 import Checkout from './components/Checkout';
 import OrderHistory from './components/OrderHistory';
+import ErrorBoundary from './components/ErrorBoundary';
 import { api } from './services/api';
 import './App.css';
 
@@ -122,87 +123,89 @@ function App() {
   }
 
   return (
-    <Router>
-      <div className="App">
-        <header className="App-header">
-          <nav className="main-nav">
-            <div className="nav-brand">
-              <Link to="/" className="brand-link">
-                <h1>E-Commerce Platform</h1>
-              </Link>
-            </div>
+    <ErrorBoundary>
+      <Router>
+        <div className="App">
+          <header className="App-header">
+            <nav className="main-nav">
+              <div className="nav-brand">
+                <Link to="/" className="brand-link">
+                  <h1>E-Commerce Platform</h1>
+                </Link>
+              </div>
 
-            <div className="nav-links">
-              <Link to="/" className="nav-link">Products</Link>
-              <Link to="/orders" className="nav-link">Orders</Link>
-              <Link to="/cart" className="nav-link cart-link">
-                Cart ({getCartItemCount()})
-                {getCartItemCount() > 0 && (
-                  <span className="cart-badge">{getCartItemCount()}</span>
-                )}
-              </Link>
-            </div>
-          </nav>
-        </header>
+              <div className="nav-links">
+                <Link to="/" className="nav-link">Products</Link>
+                <Link to="/orders" className="nav-link">Orders</Link>
+                <Link to="/cart" className="nav-link cart-link">
+                  Cart ({getCartItemCount()})
+                  {getCartItemCount() > 0 && (
+                    <span className="cart-badge">{getCartItemCount()}</span>
+                  )}
+                </Link>
+              </div>
+            </nav>
+          </header>
 
-        <main className="main-content">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <ProductList
-                  products={products}
-                  addToCart={addToCart}
-                  onRefresh={fetchProducts}
-                />
-              }
-            />
+          <main className="main-content">
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <ProductList
+                    products={products}
+                    addToCart={addToCart}
+                    onRefresh={fetchProducts}
+                  />
+                }
+              />
 
-            <Route
-              path="/product/:id"
-              element={
-                <ProductDetail
-                  products={products}
-                  addToCart={addToCart}
-                />
-              }
-            />
+              <Route
+                path="/product/:id"
+                element={
+                  <ProductDetail
+                    products={products}
+                    addToCart={addToCart}
+                  />
+                }
+              />
 
-            <Route
-              path="/cart"
-              element={
-                <Cart
-                  cart={cart}
-                  updateQuantity={updateCartQuantity}
-                  removeItem={removeFromCart}
-                  total={getTotalPrice()}
-                />
-              }
-            />
+              <Route
+                path="/cart"
+                element={
+                  <Cart
+                    cart={cart}
+                    updateQuantity={updateCartQuantity}
+                    removeItem={removeFromCart}
+                    total={getTotalPrice()}
+                  />
+                }
+              />
 
-            <Route
-              path="/checkout"
-              element={
-                <Checkout
-                  cart={cart}
-                  total={getTotalPrice()}
-                  onSuccess={clearCart}
-                />
-              }
-            />
+              <Route
+                path="/checkout"
+                element={
+                  <Checkout
+                    cart={cart}
+                    total={getTotalPrice()}
+                    onSuccess={clearCart}
+                  />
+                }
+              />
 
-            <Route
-              path="/orders"
-              element={<OrderHistory />}
-            />
-          </Routes>
-        </main>
+              <Route
+                path="/orders"
+                element={<OrderHistory />}
+              />
+            </Routes>
+          </main>
 
-        <footer className="App-footer">
-          <p>&copy; 2024 E-Commerce Platform. Built with React & Spring Boot.</p>
-        </footer>
-      </div>
-    </Router>
+          <footer className="App-footer">
+            <p>&copy; 2024 E-Commerce Platform. Built with React & Spring Boot.</p>
+          </footer>
+        </div>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

@@ -4,6 +4,7 @@ import org.allen.entity.Order;
 import org.allen.entity.OrderItem;
 import org.allen.entity.OrderStatus;
 import org.allen.entity.Product;
+import org.allen.exception.BusinessException;
 import org.allen.messaging.OrderMessageProducer;
 import org.allen.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +30,41 @@ public class OrderService {
     private OrderMessageProducer messageProducer;
 
     public Order createOrder(Order order) {
-        // Calculate total amount
+        // Validate order
+        if (order.getItems() == null || order.getItems().isEmpty()) {
+            throw new BusinessException("Order must contain at least one item");
+        }
+
+        // Calculate total amount and validate stock
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (OrderItem item : order.getItems()) {
+            if (item.getQuantity() <= 0) {
+                throw new BusinessException("Item quantity must be greater than 0");
+            }
+            
+            Product product = item.getProduct();
+            if (product == null) {
+                throw new BusinessException("Product not found for item");
+            }
+            
+            if (product.getStock() < item.getQuantity()) {
+                throw new BusinessException("Insufficient stock for product: " + product.getName());
+            }
+            
             item.setOrder(order);
             totalAmount = totalAmount.add(item.getItemTotal());
 
             // Decrease product stock
-            productService.decreaseStock(item.getProduct().getId(), item.getQuantity());
+            productService.decreaseStock(product.getId(), item.getQuantity());
         }
+        
+        if (totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessException("Order total must be greater than 0");
+        }
+        
         order.setTotalAmount(totalAmount);
+        order.setStatus(OrderStatus.PENDING);
+        order.setCreatedAt(LocalDateTime.now());
 
         Order savedOrder = orderRepository.save(order);
         messageProducer.sendOrderCreated(savedOrder);

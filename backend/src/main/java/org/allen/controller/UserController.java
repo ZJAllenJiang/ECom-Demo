@@ -1,18 +1,23 @@
 package org.allen.controller;
 
+import org.allen.dto.UserRegistrationDTO;
 import org.allen.entity.User;
+import org.allen.exception.ResourceNotFoundException;
 import org.allen.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "*")
+@Validated
 public class UserController {
 
     @Autowired
@@ -26,9 +31,9 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUser(@PathVariable Long id) {
-        Optional<User> user = userService.getUserById(id);
-        return user.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        User user = userService.getUserById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/username/{username}")
@@ -46,21 +51,26 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        try {
-            // Check if username or email already exists
-            if (userService.existsByUsername(user.getUsername())) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            }
-            if (userService.existsByEmail(user.getEmail())) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            }
-
-            User createdUser = userService.createUser(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    public ResponseEntity<User> createUser(@Valid @RequestBody UserRegistrationDTO userDTO) {
+        // Check if username or email already exists
+        if (userService.existsByUsername(userDTO.getUsername())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(null);
         }
+        if (userService.existsByEmail(userDTO.getEmail())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(null);
+        }
+
+        User user = new User();
+        user.setUsername(userDTO.getUsername());
+        user.setEmail(userDTO.getEmail());
+        user.setPassword(userDTO.getPassword()); // In production, hash this password
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+
+        User createdUser = userService.createUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
     @PutMapping("/{id}")

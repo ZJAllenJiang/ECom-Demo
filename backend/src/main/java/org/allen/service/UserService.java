@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,9 +17,8 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    // Note: In a real application, you would inject PasswordEncoder
-    // @Autowired
-    // private PasswordEncoder passwordEncoder;
+    @Autowired
+    private PasswordService passwordService;
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -37,8 +37,14 @@ public class UserService {
     }
 
     public User createUser(User user) {
-        // In a real application, you would hash the password here
-        // user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // Hash the password before saving
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            user.setPassword(passwordService.hashPassword(user.getPassword()));
+        }
+        
+        // Set creation timestamp
+        user.setCreatedAt(LocalDateTime.now());
+        
         return userRepository.save(user);
     }
 

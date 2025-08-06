@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS products (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
-    price DECIMAL(10,2) NOT NULL,
-    stock INTEGER DEFAULT 0,
+    price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+    stock INTEGER DEFAULT 0 CHECK (stock >= 0),
     image_url VARCHAR(500),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -30,9 +30,9 @@ CREATE TABLE IF NOT EXISTS products (
 -- Create orders table
 CREATE TABLE IF NOT EXISTS orders (
     id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT REFERENCES users(id),
-    total_amount DECIMAL(10,2) NOT NULL,
-    status VARCHAR(20) DEFAULT 'PENDING',
+    user_id BIGINT REFERENCES users(id) ON DELETE RESTRICT,
+    total_amount DECIMAL(10,2) NOT NULL CHECK (total_amount > 0),
+    status VARCHAR(20) DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED')),
     stripe_payment_intent_id VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -42,9 +42,9 @@ CREATE TABLE IF NOT EXISTS orders (
 CREATE TABLE IF NOT EXISTS order_items (
     id BIGSERIAL PRIMARY KEY,
     order_id BIGINT REFERENCES orders(id) ON DELETE CASCADE,
-    product_id BIGINT REFERENCES products(id),
-    quantity INTEGER NOT NULL,
-    price DECIMAL(10,2) NOT NULL
+    product_id BIGINT REFERENCES products(id) ON DELETE RESTRICT,
+    quantity INTEGER NOT NULL CHECK (quantity > 0),
+    price DECIMAL(10,2) NOT NULL CHECK (price >= 0)
 );
 
 -- Insert sample users

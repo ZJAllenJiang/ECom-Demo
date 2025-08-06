@@ -21,8 +21,8 @@ public class Order {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "user_id")
-    private Long userId;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Column(name = "total_amount")
     private BigDecimal totalAmount;
