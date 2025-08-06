@@ -29,10 +29,8 @@
             <fileNamePattern>logs/ecommerce-json.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <includeContext>true</includeContext>
-            <includeMdc>true</includeMdc>
-            <customFields>{"service":"ecommerce-backend","environment":"${ENVIRONMENT:development}"}</customFields>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>{"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%level","thread":"%thread","logger":"%logger{36}","message":"%msg","service":"ecommerce-backend","environment":"${ENVIRONMENT:development}"}%n</pattern>
         </encoder>
     </appender>
 
