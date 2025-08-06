@@ -66,7 +66,7 @@ class OrderServiceTest {
     void testCreateOrder_Success() {
         // Arrange
         when(orderRepository.save(any(Order.class))).thenReturn(testOrder);
-        doNothing().when(productService).decreaseStock(anyLong(), anyInt());
+        when(productService.decreaseStock(anyLong(), anyInt())).thenReturn(true);
         doNothing().when(messageProducer).sendOrderCreated(any(Order.class));
 
         // Act

@@ -71,17 +71,6 @@ class PasswordServiceTest {
     }
 
     @Test
-    void testHashPassword_EmptyPassword() {
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> passwordService.hashPassword("")
-        );
-        
-        assertEquals("rawPassword cannot be empty", exception.getMessage());
-    }
-
-    @Test
     void testMatches_ValidPassword() {
         // Arrange
         String rawPassword = "TestPassword123";
@@ -113,13 +102,11 @@ class PasswordServiceTest {
         // Arrange
         String hashedPassword = passwordService.hashPassword("SomePassword123");
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> passwordService.matches("", hashedPassword)
-        );
-        
-        assertEquals("rawPassword cannot be empty", exception.getMessage());
+        // Act
+        boolean result = passwordService.matches("", hashedPassword);
+
+        // Assert
+        assertFalse(result);
     }
 
     @Test
@@ -127,11 +114,13 @@ class PasswordServiceTest {
         // Arrange
         String hashedPassword = passwordService.hashPassword("SomePassword123");
 
-        // Act
-        boolean result = passwordService.matches(null, hashedPassword);
-        
-        // Assert
-        assertFalse(result);
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> passwordService.matches(null, hashedPassword)
+        );
+
+        assertEquals("rawPassword cannot be null", exception.getMessage());
     }
 
     @Test

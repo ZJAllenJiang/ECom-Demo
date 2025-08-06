@@ -19,7 +19,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice);
 
-    @Query("SELECT p FROM Product p WHERE p.name ILIKE %:searchTerm% OR p.description ILIKE %:searchTerm%")
+    @Query("SELECT p FROM Product p WHERE p.name LIKE %:searchTerm% OR p.description LIKE %:searchTerm%")
     List<Product> searchProducts(@Param("searchTerm") String searchTerm);
 
     List<Product> findByStockGreaterThan(Integer stock);

@@ -113,6 +113,14 @@ else
     echo -e "${GREEN}✓ No Spring Boot startup errors found${NC}"
 fi
 
+# Check for 401/403 authentication errors
+if docker-compose logs backend | grep -q "401\|403\|Unauthorized\|Forbidden"; then
+    echo -e "${RED}❌ Found authentication/authorization errors${NC}"
+    echo "This might indicate SecurityConfig issues."
+else
+    echo -e "${GREEN}✓ No authentication/authorization errors found${NC}"
+fi
+
 echo -e "\n${YELLOW}📊 Startup Test Summary${NC}"
 echo "========================"
 

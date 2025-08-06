@@ -23,14 +23,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .cors().and()
             .csrf().disable()
             .authorizeRequests()
-                .antMatchers("/api/products/**").permitAll()
-                .antMatchers("/api/users/check-username/**").permitAll()
-                .antMatchers("/api/users/check-email/**").permitAll()
-                .antMatchers("/api/users").permitAll() // Allow user registration
-                .antMatchers("/api/payments/**").permitAll() // For demo purposes
-                .antMatchers("/api/orders/**").permitAll() // For demo purposes
+                // Allow all API endpoints for demo/testing purposes
+                .antMatchers("/api/**").permitAll()
                 .antMatchers("/actuator/**").permitAll()
+                .antMatchers("/h2-console/**").permitAll() // Allow H2 console for testing
                 .anyRequest().authenticated()
+            .and()
+            .headers().frameOptions().disable() // Allow H2 console frames
             .and()
             .httpBasic();
     }
